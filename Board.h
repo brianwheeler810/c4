@@ -11,6 +11,7 @@ const int MAX_FILE = 7;
 class Board
 {
 	RectangleShape m_chips[MAX_FILE][MAX_RANK];
+	char m_boardState[MAX_FILE][MAX_RANK];
 	Texture m_boardTexture;
 	Sprite m_boardSprite;
 	int m_curPositions[MAX_FILE];
@@ -22,5 +23,6 @@ public:
 	RectangleShape* getChips();
 	Sprite getBoardSprite();
 	void updateBoardWithPick(int column, bool player);
+	bool checkForWin(bool isPlayer);
 };
 

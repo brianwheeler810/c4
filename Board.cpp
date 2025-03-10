@@ -6,6 +6,11 @@ Board::Board() {
     for (int i = 0; i < 7; i++) {
         m_curPositions[i] = 0;
     }
+    for (int i = 0; i < MAX_FILE; i++) {
+        for (int j = 0; j < MAX_RANK; j++) {
+            m_boardState[i][j] = '_';
+        }
+    }
 }
 
 RectangleShape* Board::getChips() {
@@ -24,6 +29,57 @@ void Board::updateBoardWithPick(int column, bool player) {
         m_chips[column-1][rank].setFillColor(player ? Color::Red : Color::Yellow);
         m_chips[column-1][rank].setPosition(calculateChipPosition(column, m_curPositions[column-1]));
     }
+    m_boardState[column - 1][m_curPositions[column - 1]-1] = player ? 'P' : 'A';
+}
+
+bool Board::checkForWin(bool isPlayer) {
+    char playerChar = isPlayer ? 'P' : 'A';  //P is player  A is AI
+
+    //across
+    for (int i = 0; i < 7; i++) {  
+        for (int j = 0; j < 3; j++) { 
+            if (m_boardState[i][j] == m_boardState[i][j+1] && 
+                m_boardState[i][j+1] == m_boardState[i][j+2] && 
+                m_boardState[i][j+2] == m_boardState[i][j+3] &&
+                m_boardState[i][j+3] == playerChar) {
+                return true;
+            }
+        }
+    }
+    //up and down
+    for (int i = 0; i < 4; i++) {  
+        for (int j = 0; j < 6; j++) {
+            if (m_boardState[i][j] == m_boardState[i+1][j] && 
+                m_boardState[i+1][j] == m_boardState[i+2][j] &&
+                m_boardState[i+2][j] == m_boardState[i+3][j] &&
+                m_boardState[i+3][j] == playerChar) {
+                return true;
+            }
+        }
+    }
+    //diagonally
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (m_boardState[i][j] == m_boardState[i+1][j+1]  &&
+                m_boardState[i+1][j+1] == m_boardState[i+2][j+2] &&
+                m_boardState[i+2][j+2] == m_boardState[i+3][j+3] &&
+                m_boardState[i+3][j+3] == playerChar) {
+                return true;
+            }
+        }
+    }
+    for (int i = 3; i < 7; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (m_boardState[i][j] == m_boardState[i-1][j+1] && 
+                m_boardState[i-1][j+1] == m_boardState[i-2][j+2] &&
+                m_boardState[i-2][j+2] == m_boardState[i-3][j+3] &&
+                m_boardState[i-3][j+3] == playerChar) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 Vector2f Board::calculateChipPosition(int file, int rank) {
@@ -32,5 +88,4 @@ Vector2f Board::calculateChipPosition(int file, int rank) {
     float x = (file - 1) * width;
     float y = (7.0f - rank - 1) * height;
     return Vector2f(x, y);
-
 }

@@ -8,7 +8,6 @@ using namespace sf;
 int main()
 {
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Connect Four");
-
     Event event;
     int mousePointX;
     float columnPickedByPlayer;
@@ -16,6 +15,7 @@ int main()
     bool waitingForPlayerPick = true;
     Board board;
     RectangleShape* chips = board.getChips();
+
     srand(time(NULL));
 
     while (window.isOpen()) {
@@ -36,6 +36,9 @@ int main()
         while (!waitingForPlayerPick) {
             if (playersTurn) {
                 board.updateBoardWithPick(columnPickedByPlayer, true);
+                if (board.checkForWin(true)) {
+                    std::cout << "Player Wins!\n";
+                }
                 playersTurn = false;
             }
             else {
@@ -44,10 +47,12 @@ int main()
                 //   a) check to see if ai can win with a move
                 //   b) check to see if player needs to be blocked
                 //   c) pick best option
-                board.updateBoardWithPick((rand() % 7) + 1, false);
+                board.updateBoardWithPick((rand() % MAX_FILE) + 1, false);
+                if (board.checkForWin(false)) {
+                    std::cout << "Computer Wins!\n";
+                }
                 playersTurn = true;
                 waitingForPlayerPick = true;
-                
             }
             chips = board.getChips();
         }
