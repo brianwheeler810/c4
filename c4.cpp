@@ -13,8 +13,28 @@ int main()
     float columnPickedByPlayer;
     bool playersTurn = true;
     bool waitingForPlayerPick = true;
-    Board board;
-    RectangleShape* chips = board.getChips();
+    bool gamePaused = false;
+    Board* board = new Board;
+    RectangleShape* chips = board->getChips();
+    char* state = NULL;
+    int aiPick = 0;
+
+    Font font;
+    bool success = font.loadFromFile("fonts/DS-DIGIT.TTF");
+
+    Text winnerMessage;
+    winnerMessage.setFont(font);
+    winnerMessage.setCharacterSize(40);
+    winnerMessage.setFillColor(Color::Green);
+
+    Text keyMessage;
+    keyMessage.setFont(font);
+    keyMessage.setCharacterSize(40);
+    keyMessage.setFillColor(Color::Green);
+    keyMessage.setString("(Q)uit (R)eset");
+    keyMessage.setPosition(20.0f, 20.0f);
+
+    FloatRect textRect;
 
     srand(time(NULL));
 
@@ -31,30 +51,70 @@ int main()
                 waitingForPlayerPick = false;
             }
         }
+        if (Keyboard::isKeyPressed(Keyboard::Q)) {
+            window.close();
+        }
+        if (Keyboard::isKeyPressed(Keyboard::R)) {
+            board->reset();
+            gamePaused = false;
+        }
 
         // update
-        while (!waitingForPlayerPick) {
+        while (!waitingForPlayerPick && !gamePaused) {
             if (playersTurn) {
-                board.updateBoardWithPick(columnPickedByPlayer, true);
-                if (board.checkForWin(true)) {
-                    std::cout << "Player Wins!\n";
+                board->updateBoardWithPick(columnPickedByPlayer, true);
+                if (board->checkForWin(true)) {
+                    winnerMessage.setString("You Win!");
+                    textRect = winnerMessage.getLocalBounds();
+                    winnerMessage.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                    winnerMessage.setPosition(WIDTH / 2.0f, HEIGHT / 2.0f);
+                    gamePaused = true;
                 }
                 playersTurn = false;
             }
             else {
-                // check for win for player
                 // ai makes pick
-                //   a) check to see if ai can win with a move
+                //   a) check to see if ai can win with a move 
+                for (int i = 1; i <= MAX_FILE; i++)
+                {
+                    Board tempBoard(*board);
+                    tempBoard.updateBoardWithPick(i, false);
+                    if (tempBoard.checkForWin(false)) {
+                        aiPick = i;
+                        break;
+                    }
+                }
                 //   b) check to see if player needs to be blocked
-                //   c) pick best option
-                board.updateBoardWithPick((rand() % MAX_FILE) + 1, false);
-                if (board.checkForWin(false)) {
-                    std::cout << "Computer Wins!\n";
+                if (!aiPick) {
+                    for (int i = 1; i <= MAX_FILE; i++)
+                    {
+                        Board tempBoard(*board);
+                        tempBoard.updateBoardWithPick(i, true);
+                        if (tempBoard.checkForWin(true)) {
+                            aiPick = i;
+                            break;
+                        }
+                    }
+                }
+                //   c) pick best option <<for now just random>> 
+                if (!aiPick) {
+                    do
+                        aiPick = (rand() % MAX_FILE) + 1;
+                    while (!board->isValidPick(aiPick));
+                }
+                board->updateBoardWithPick(aiPick, false);
+                if (board->checkForWin(false)) {
+                    winnerMessage.setString("Computer Wins");
+                    textRect = winnerMessage.getLocalBounds();
+                    winnerMessage.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+                    winnerMessage.setPosition(WIDTH / 2.0f, HEIGHT / 2.0f);
+                    gamePaused = true;
                 }
                 playersTurn = true;
                 waitingForPlayerPick = true;
+                aiPick = 0;
             }
-            chips = board.getChips();
+            chips = board->getChips();
         }
 
         // render
@@ -65,7 +125,11 @@ int main()
                 window.draw(chips[k]);
             }
         }
-        window.draw(board.getBoardSprite());
+        window.draw(board->getBoardSprite());
+        if (gamePaused) {
+            window.draw(winnerMessage);
+            window.draw(keyMessage);
+        }
         window.display();
     }
 

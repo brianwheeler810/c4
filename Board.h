@@ -20,9 +20,13 @@ class Board
 
 public:
 	Board();
+	Board(const Board& other);
+	void reset();
 	RectangleShape* getChips();
+	char* getBoardState();
 	Sprite getBoardSprite();
 	void updateBoardWithPick(int column, bool player);
 	bool checkForWin(bool isPlayer);
+	bool isValidPick(int pick);
 };
 

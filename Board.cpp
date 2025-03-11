@@ -13,8 +13,46 @@ Board::Board() {
     }
 }
 
+Board::Board(const Board& other) {
+    m_boardTexture = other.m_boardTexture;
+    m_boardSprite = other.m_boardSprite;
+    for (int i = 0; i < MAX_FILE; i++) {
+        m_curPositions[i] = other.m_curPositions[i];
+    }
+    for (int i = 0; i < MAX_FILE; i++) {
+        for (int j = 0; j < MAX_RANK; j++) {
+            m_boardState[i][j] = other.m_boardState[i][j];
+        }
+    }
+    for (int i = 0; i < MAX_FILE; i++) {
+        for (int j = 0; j < MAX_RANK; j++) {
+            m_chips[i][j] = other.m_chips[i][j];
+        }
+    }
+}
+
+void Board::reset() {
+    for (int i = 0; i < MAX_FILE; i++) {
+        m_curPositions[i] = 0;
+    }
+    for (int i = 0; i < MAX_FILE; i++) {
+        for (int j = 0; j < MAX_RANK; j++) {
+            m_boardState[i][j] = '_';
+        }
+    }
+    for (int i = 0; i < MAX_FILE; i++) {
+        for (int j = 0; j < MAX_RANK; j++) {
+            m_chips[i][j] = RectangleShape();
+        }
+    }
+}
+
 RectangleShape* Board::getChips() {
     return (RectangleShape*)&m_chips;
+}
+
+char* Board::getBoardState() {
+    return (char*)&m_boardState;
 }
 
 Sprite Board::getBoardSprite() {
@@ -80,6 +118,11 @@ bool Board::checkForWin(bool isPlayer) {
     }
 
     return false;
+}
+
+
+bool Board::isValidPick(int pick) {
+    return m_curPositions[pick - 1] < MAX_RANK ? true : false;
 }
 
 Vector2f Board::calculateChipPosition(int file, int rank) {
