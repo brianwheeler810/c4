@@ -20,7 +20,7 @@ int main()
     int aiPick = 0;
 
     Font font;
-    bool success = font.loadFromFile("fonts/DS-DIGIT.TTF");
+    bool success = font.loadFromFile("fonts/KOMIKAP_.ttf");
 
     Text winnerMessage;
     winnerMessage.setFont(font);
