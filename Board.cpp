@@ -66,8 +66,8 @@ void Board::updateBoardWithPick(int column, bool player) {
         m_chips[column-1][rank].setSize(Vector2f(WIDTH / MAX_FILE, HEIGHT / MAX_RANK));
         m_chips[column-1][rank].setFillColor(player ? Color::Red : Color::Yellow);
         m_chips[column-1][rank].setPosition(calculateChipPosition(column, m_curPositions[column-1]));
+        m_boardState[column - 1][m_curPositions[column - 1] - 1] = player ? 'P' : 'A';
     }
-    m_boardState[column - 1][m_curPositions[column - 1]-1] = player ? 'P' : 'A';
 }
 
 bool Board::checkForWin(bool isPlayer) {
